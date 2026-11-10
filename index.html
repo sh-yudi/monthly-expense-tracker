@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Budget 2027">
+  <title>Monthly Expense Plan & Savings Tracker</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    input[type=range] {
+      accent-color: #10b981;
+      height: 6px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 antialiased p-3 sm:p-5 min-h-screen">
+  <div class="max-w-2xl mx-auto space-y-4 pb-12">
+
+    <!-- Header Section -->
+    <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <h1 class="text-lg sm:text-xl font-bold tracking-tight">Monthly Expense Tracker</h1>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Target: <strong class="text-slate-700 dark:text-slate-200">Max Savings by June 2027</strong> (~7.5 mos)</p>
+      </div>
+      <div class="w-full sm:w-auto bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl px-3.5 py-2 flex sm:flex-col justify-between items-center sm:items-end">
+        <span class="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold uppercase tracking-wider">Net Monthly Income</span>
+        <span class="text-xl font-black text-emerald-700 dark:text-emerald-300">₹2,41,100</span>
+      </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-2 gap-3">
+      <!-- Monthly Savings Card -->
+      <div class="bg-white dark:bg-slate-800 border border-emerald-300 dark:border-emerald-700/60 rounded-xl p-3.5 shadow-sm bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-950/20">
+        <div class="flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400 mb-0.5">
+          <span>Monthly Surplus</span>
+          <span class="px-1 py-0.2 rounded text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 font-bold" id="savings-percent-badge">19.5%</span>
+        </div>
+        <div class="text-lg sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400" id="savings-monthly-display">₹47,057</div>
+        <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Saved each month</div>
+      </div>
+
+      <!-- Projected Savings by June 2027 -->
+      <div class="bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-600 rounded-xl p-3.5 shadow-sm bg-gradient-to-br from-emerald-100/40 to-transparent dark:from-emerald-900/30">
+        <div class="flex justify-between items-center text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold mb-0.5">
+          <span>Target by June 2027</span>
+          <span class="text-[10px] bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 px-1 rounded">7.5 Mos</span>
+        </div>
+        <div class="text-lg sm:text-xl font-black text-emerald-700 dark:text-emerald-200" id="projected-savings-display">₹3,52,928</div>
+        <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Estimated total corpus</div>
+      </div>
+    </div>
+
+    <!-- Fixed vs Variable Quick Bar -->
+    <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm space-y-2">
+      <div class="flex justify-between text-xs font-medium">
+        <span>Income Allocation</span>
+        <span class="text-gray-500 dark:text-gray-400">Total: ₹2,41,100</span>
+      </div>
+      <div class="w-full h-4 rounded-full overflow-hidden flex bg-gray-100 dark:bg-slate-700">
+        <div id="bar-emi" class="bg-rose-500 transition-all duration-300" style="width: 69.7%;" title="EMIs"></div>
+        <div id="bar-fixed" class="bg-amber-400 transition-all duration-300" style="width: 2.7%;" title="Bills & Ins"></div>
+        <div id="bar-var" class="bg-blue-400 transition-all duration-300" style="width: 8.1%;" title="Variable"></div>
+        <div id="bar-save" class="bg-emerald-500 transition-all duration-300" style="width: 19.5%;" title="Savings"></div>
+      </div>
+      <div class="flex flex-wrap justify-between gap-1 text-[11px] text-gray-500 dark:text-gray-400 pt-0.5">
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> EMIs (<span id="legend-emi-pct">69.7%</span>)</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Bills (<span id="legend-fixed-pct">2.7%</span>)</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400"></span> Variable (<span id="legend-var-pct">8.1%</span>)</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Save (<span id="legend-save-pct">19.5%</span>)</span>
+      </div>
+    </div>
+
+    <!-- Sliders: Variable Expenses -->
+    <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm space-y-3.5">
+      <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-700 pb-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">1. Variable Spending Budget</h2>
+        <span class="text-xs font-bold text-blue-600 dark:text-blue-400" id="variable-total-display">₹19,500</span>
+      </div>
+
+      <!-- Groceries -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-xs">
+          <span class="text-gray-600 dark:text-gray-300">Groceries & Essentials</span>
+          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-groceries">₹6,000</span>
+        </div>
+        <input type="range" id="slider-groceries" min="4000" max="8000" step="500" value="6000" class="w-full">
+      </div>
+
+      <!-- Dining & Social -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-xs">
+          <span class="text-gray-600 dark:text-gray-300">Dining Out, Cafe & Food Delivery</span>
+          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-dining">₹5,000</span>
+        </div>
+        <input type="range" id="slider-dining" min="1500" max="8000" step="500" value="5000" class="w-full">
+      </div>
+
+      <!-- Transport / Fuel -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-xs">
+          <span class="text-gray-600 dark:text-gray-300">Transport & Fuel</span>
+          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-transport">₹6,500</span>
+        </div>
+        <input type="range" id="slider-transport" min="4000" max="8000" step="500" value="6500" class="w-full">
+      </div>
+
+      <!-- Shopping / Misc -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-xs">
+          <span class="text-gray-600 dark:text-gray-300">Shopping / Misc (Monthly Average)</span>
+          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-shopping">₹2,000</span>
+        </div>
+        <input type="range" id="slider-shopping" min="500" max="4000" step="500" value="2000" class="w-full">
+      </div>
+    </div>
+
+    <!-- Loan Completion Simulator -->
+    <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm space-y-3">
+      <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-700 pb-2">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">2. Any Loans Ending Before June 2027?</h2>
+        <span class="text-[11px] text-gray-400">Tap to toggle</span>
+      </div>
+
+      <div class="space-y-2">
+        <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="loan-1" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <span class="text-xs font-medium">Loan 4</span>
+          </div>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹21,126 / mo</span>
+        </label>
+
+        <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="loan-2" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <span class="text-xs font-medium">Loan 3</span>
+          </div>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹27,397 / mo</span>
+        </label>
+
+        <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="loan-3" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <span class="text-xs font-medium">Loan 2</span>
+          </div>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹33,340 / mo</span>
+        </label>
+
+        <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="loan-4" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <span class="text-xs font-medium">Loan 1</span>
+          </div>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹86,070 / mo</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Fixed Commitments List -->
+    <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm text-xs space-y-2">
+      <h3 class="font-bold text-gray-500 uppercase tracking-wider text-[11px]">Fixed Commitments (₹1,74,543 / mo)</h3>
+      <div class="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-300">
+        <div>• Total EMIs: <strong>₹1,67,933</strong></div>
+        <div>• Insurance: <strong>₹5,192</strong></div>
+        <div>• Utilities/Internet: <strong>₹1,000</strong></div>
+        <div>• Subscriptions: <strong>₹418</strong></div>
+      </div>
+    </div>
+
+    <div class="text-center text-[11px] text-gray-400 pt-2">
+      ✓ Settings automatically save on your phone
+    </div>
+
+  </div>
+
+  <script>
+    const TOTAL_INCOME = 241100;
+    const BASE_NON_EMI_FIXED = 1000 + 5192 + 199 + 219;
+    const BASE_EMIS = 86070 + 27397 + 21126 + 33340;
+
+    const sliderGroceries = document.getElementById('slider-groceries');
+    const sliderDining = document.getElementById('slider-dining');
+    const sliderTransport = document.getElementById('slider-transport');
+    const sliderShopping = document.getElementById('slider-shopping');
+
+    const checkLoan1 = document.getElementById('loan-1');
+    const checkLoan2 = document.getElementById('loan-2');
+    const checkLoan3 = document.getElementById('loan-3');
+    const checkLoan4 = document.getElementById('loan-4');
+
+    function formatINR(val) {
+      return '₹' + Math.round(val).toLocaleString('en-IN');
+    }
+
+    function saveState() {
+      const state = {
+        groceries: sliderGroceries.value,
+        dining: sliderDining.value,
+        transport: sliderTransport.value,
+        shopping: sliderShopping.value,
+        l1: checkLoan1.checked,
+        l2: checkLoan2.checked,
+        l3: checkLoan3.checked,
+        l4: checkLoan4.checked
+      };
+      try {
+        localStorage.setItem('budget_tracker_state', JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem('budget_tracker_state');
+        if (saved) {
+          const s = JSON.parse(saved);
+          if (s.groceries) sliderGroceries.value = s.groceries;
+          if (s.dining) sliderDining.value = s.dining;
+          if (s.transport) sliderTransport.value = s.transport;
+          if (s.shopping) sliderShopping.value = s.shopping;
+          if (s.l1 !== undefined) checkLoan1.checked = s.l1;
+          if (s.l2 !== undefined) checkLoan2.checked = s.l2;
+          if (s.l3 !== undefined) checkLoan3.checked = s.l3;
+          if (s.l4 !== undefined) checkLoan4.checked = s.l4;
+        }
+      } catch (e) {}
+    }
+
+    function calculate() {
+      const groceries = parseInt(sliderGroceries.value);
+      const dining = parseInt(sliderDining.value);
+      const transport = parseInt(sliderTransport.value);
+      const shopping = parseInt(sliderShopping.value);
+
+      document.getElementById('val-groceries').innerText = formatINR(groceries);
+      document.getElementById('val-dining').innerText = formatINR(dining);
+      document.getElementById('val-transport').innerText = formatINR(transport);
+      document.getElementById('val-shopping').innerText = formatINR(shopping);
+
+      const totalVariable = groceries + dining + transport + shopping;
+
+      let freedLoans = 0;
+      if (checkLoan1.checked) freedLoans += 21126;
+      if (checkLoan2.checked) freedLoans += 27397;
+      if (checkLoan3.checked) freedLoans += 33340;
+      if (checkLoan4.checked) freedLoans += 86070;
+
+      const currentEMIs = BASE_EMIS - freedLoans;
+      const totalFixed = currentEMIs + BASE_NON_EMI_FIXED;
+      const totalExpenses = totalFixed + totalVariable;
+      const monthlySavings = Math.max(0, TOTAL_INCOME - totalExpenses);
+
+      const projectedJuneSavings = monthlySavings * 7.5;
+
+      document.getElementById('variable-total-display').innerText = formatINR(totalVariable);
+      document.getElementById('savings-monthly-display').innerText = formatINR(monthlySavings);
+      document.getElementById('projected-savings-display').innerText = formatINR(projectedJuneSavings);
+
+      const varPct = (totalVariable / TOTAL_INCOME) * 100;
+      const savePct = (monthlySavings / TOTAL_INCOME) * 100;
+      const emiPct = (currentEMIs / TOTAL_INCOME) * 100;
+      const otherFixedPct = (BASE_NON_EMI_FIXED / TOTAL_INCOME) * 100;
+
+      document.getElementById('savings-percent-badge').innerText = savePct.toFixed(1) + '%';
+
+      document.getElementById('bar-emi').style.width = emiPct + '%';
+      document.getElementById('bar-fixed').style.width = otherFixedPct + '%';
+      document.getElementById('bar-var').style.width = varPct + '%';
+      document.getElementById('bar-save').style.width = savePct + '%';
+
+      document.getElementById('legend-emi-pct').innerText = emiPct.toFixed(1) + '%';
+      document.getElementById('legend-fixed-pct').innerText = otherFixedPct.toFixed(1) + '%';
+      document.getElementById('legend-var-pct').innerText = varPct.toFixed(1) + '%';
+      document.getElementById('legend-save-pct').innerText = savePct.toFixed(1) + '%';
+
+      saveState();
+    }
+
+    [sliderGroceries, sliderDining, sliderTransport, sliderShopping].forEach(el => {
+      el.addEventListener('input', calculate);
+    });
+
+    [checkLoan1, checkLoan2, checkLoan3, checkLoan4].forEach(el => {
+      el.addEventListener('change', calculate);
+    });
+
+    loadState();
+    calculate();
+  </script>
+</body>
+</html>
