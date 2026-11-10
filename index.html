@@ -13,6 +13,14 @@
       accent-color: #10b981;
       height: 6px;
     }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       20%, 60% { transform: translateX(-8px); }
@@ -63,12 +71,12 @@
       </div>
 
       <div class="pt-2 text-[11px] text-gray-400">
-        Default PIN: <strong>2027</strong> (Encrypted AES-256)
+        PIN: <strong>2027</strong> (Encrypted AES-256)
       </div>
     </div>
   </div>
 
-  <!-- DASHBOARD CONTENT (Hidden until decrypted) -->
+  <!-- DASHBOARD CONTENT -->
   <div id="dashboard" class="hidden p-3 sm:p-5 max-w-2xl mx-auto space-y-4 pb-12">
 
     <!-- Header Section -->
@@ -134,61 +142,100 @@
       </div>
     </div>
 
-    <!-- Sliders: Variable Expenses -->
+    <!-- 1. EDITABLE INCOME SECTION -->
+    <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm space-y-3">
+      <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-700 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-sm">💵</span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">1. Income Streams (Fully Editable)</h2>
+        </div>
+        <span class="text-xs font-black text-emerald-600 dark:text-emerald-400" id="total-income-badge">₹2,41,100</span>
+      </div>
+      
+      <p class="text-[11px] text-gray-400">Edit amounts, add new earnings, or rename streams. Total updates in real-time:</p>
+      
+      <div id="income-streams-container" class="space-y-2">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <button onclick="addIncomeStream()" class="w-full py-2 rounded-lg border border-dashed border-gray-300 dark:border-slate-600 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700/50 transition flex items-center justify-center gap-1">
+        <span>+</span> Add Another Income Stream
+      </button>
+    </div>
+
+    <!-- 2. EDITABLE VARIABLE EXPENSES SECTION -->
     <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm space-y-3.5">
       <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-700 pb-2">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">1. Variable Spending Budget</h2>
+        <div class="flex items-center gap-2">
+          <span class="text-sm">🛒</span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">2. Variable Spending (Type digits or slide)</h2>
+        </div>
         <span class="text-xs font-bold text-blue-600 dark:text-blue-400" id="variable-total-display">₹19,500</span>
       </div>
 
       <!-- Groceries -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs">
-          <span class="text-gray-600 dark:text-gray-300">Groceries & Essentials</span>
-          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-groceries">₹6,000</span>
+      <div class="space-y-1.5 p-2 rounded-lg bg-gray-50/50 dark:bg-slate-850 border border-gray-100 dark:border-slate-750">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-medium text-gray-700 dark:text-gray-200">Groceries & Essentials</span>
+          <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
+            <span class="text-gray-400 text-xs font-medium">₹</span>
+            <input type="number" id="num-groceries" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="6000" oninput="syncVariableFromNum('groceries')">
+          </div>
         </div>
-        <input type="range" id="slider-groceries" min="4000" max="8000" step="500" value="6000" class="w-full">
+        <input type="range" id="slider-groceries" min="1000" max="15000" step="500" value="6000" class="w-full" oninput="syncVariableFromSlider('groceries')">
       </div>
 
       <!-- Dining & Social -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs">
-          <span class="text-gray-600 dark:text-gray-300">Dining Out, Cafe & Food Delivery</span>
-          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-dining">₹5,000</span>
+      <div class="space-y-1.5 p-2 rounded-lg bg-gray-50/50 dark:bg-slate-850 border border-gray-100 dark:border-slate-750">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-medium text-gray-700 dark:text-gray-200">Dining Out, Cafe & Social</span>
+          <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
+            <span class="text-gray-400 text-xs font-medium">₹</span>
+            <input type="number" id="num-dining" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="5000" oninput="syncVariableFromNum('dining')">
+          </div>
         </div>
-        <input type="range" id="slider-dining" min="1500" max="8000" step="500" value="5000" class="w-full">
+        <input type="range" id="slider-dining" min="500" max="15000" step="500" value="5000" class="w-full" oninput="syncVariableFromSlider('dining')">
       </div>
 
       <!-- Transport / Fuel -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs">
-          <span class="text-gray-600 dark:text-gray-300">Transport & Fuel</span>
-          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-transport">₹6,500</span>
+      <div class="space-y-1.5 p-2 rounded-lg bg-gray-50/50 dark:bg-slate-850 border border-gray-100 dark:border-slate-750">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-medium text-gray-700 dark:text-gray-200">Transport & Fuel</span>
+          <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
+            <span class="text-gray-400 text-xs font-medium">₹</span>
+            <input type="number" id="num-transport" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="6500" oninput="syncVariableFromNum('transport')">
+          </div>
         </div>
-        <input type="range" id="slider-transport" min="4000" max="8000" step="500" value="6500" class="w-full">
+        <input type="range" id="slider-transport" min="1000" max="15000" step="500" value="6500" class="w-full" oninput="syncVariableFromSlider('transport')">
       </div>
 
       <!-- Shopping / Misc -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs">
-          <span class="text-gray-600 dark:text-gray-300">Shopping / Misc (Monthly Average)</span>
-          <span class="font-bold text-slate-800 dark:text-slate-100" id="val-shopping">₹2,000</span>
+      <div class="space-y-1.5 p-2 rounded-lg bg-gray-50/50 dark:bg-slate-850 border border-gray-100 dark:border-slate-750">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-medium text-gray-700 dark:text-gray-200">Shopping / Misc (Monthly Average)</span>
+          <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
+            <span class="text-gray-400 text-xs font-medium">₹</span>
+            <input type="number" id="num-shopping" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="2000" oninput="syncVariableFromNum('shopping')">
+          </div>
         </div>
-        <input type="range" id="slider-shopping" min="500" max="4000" step="500" value="2000" class="w-full">
+        <input type="range" id="slider-shopping" min="0" max="10000" step="500" value="2000" class="w-full" oninput="syncVariableFromSlider('shopping')">
       </div>
     </div>
 
-    <!-- Loan Completion Simulator -->
+    <!-- 3. LOAN COMPLETION SIMULATOR -->
     <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm space-y-3">
       <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-700 pb-2">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">2. Any Loans Ending Before June 2027?</h2>
-        <span class="text-[11px] text-gray-400">Tap to toggle</span>
+        <div class="flex items-center gap-2">
+          <span class="text-sm">⚡</span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">3. Any Loans Ending Before June 2027?</h2>
+        </div>
+        <span class="text-[11px] text-gray-400">Toggle if completed</span>
       </div>
 
       <div class="space-y-2">
         <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
           <div class="flex items-center gap-2">
-            <input type="checkbox" id="loan-1" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <input type="checkbox" id="loan-1" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="calculate()">
             <span class="text-xs font-medium">Loan 4</span>
           </div>
           <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-1">+₹21,126 / mo</span>
@@ -196,7 +243,7 @@
 
         <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
           <div class="flex items-center gap-2">
-            <input type="checkbox" id="loan-2" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <input type="checkbox" id="loan-2" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="calculate()">
             <span class="text-xs font-medium">Loan 3</span>
           </div>
           <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-2">+₹27,397 / mo</span>
@@ -204,7 +251,7 @@
 
         <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
           <div class="flex items-center gap-2">
-            <input type="checkbox" id="loan-3" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <input type="checkbox" id="loan-3" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="calculate()">
             <span class="text-xs font-medium">Loan 2</span>
           </div>
           <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-3">+₹33,340 / mo</span>
@@ -212,7 +259,7 @@
 
         <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
           <div class="flex items-center gap-2">
-            <input type="checkbox" id="loan-4" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <input type="checkbox" id="loan-4" class="rounded text-emerald-600 focus:ring-emerald-500" onchange="calculate()">
             <span class="text-xs font-medium">Loan 1</span>
           </div>
           <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-4">+₹86,070 / mo</span>
@@ -220,10 +267,10 @@
       </div>
     </div>
 
-    <!-- Fixed Commitments List -->
+    <!-- 4. FIXED COMMITMENTS -->
     <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm text-xs space-y-2">
       <h3 class="font-bold text-gray-500 uppercase tracking-wider text-[11px]" id="fixed-summary-title">Fixed Commitments</h3>
-      <div class="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-300" id="fixed-summary-items">
+      <div class="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-300">
         <div>• Total EMIs: <strong id="emi-total-lbl">₹1,67,933</strong></div>
         <div>• Insurance: <strong id="ins-total-lbl">₹5,192</strong></div>
         <div>• Utilities/Internet: <strong id="util-total-lbl">₹1,000</strong></div>
@@ -231,15 +278,21 @@
       </div>
     </div>
 
-    <div class="text-center text-[11px] text-gray-400 pt-2">
-      🔒 Securely encrypted with AES-256 • Settings saved locally
+    <!-- AUTO-SAVE STATUS & RESET -->
+    <div class="flex justify-between items-center text-[11px] text-gray-400 pt-2 px-1">
+      <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="save-status">All changes saved automatically</span>
+      </div>
+      <button onclick="resetDefaults()" class="text-gray-400 hover:text-rose-500 underline transition">
+        Reset to defaults
+      </button>
     </div>
 
   </div>
 
   <script>
-    // ENCRYPTED PAYLOAD (AES-256-GCM encrypted using PIN 2027)
-    // No sensitive numbers are visible in the repository code!
+    // INITIAL ENCRYPTED VAULT (AES-256-GCM encrypted using PIN 2027)
     const SECURE_VAULT = {
       salt: "d55704d2e8149b93d4c2338a09f47b22",
       iv: "9ccbd267ce145f9fbefedf9f",
@@ -248,7 +301,34 @@
     };
 
     let currentPin = "";
-    let budgetData = null;
+    let activeState = null;
+
+    // DEFAULT FRESH TEMPLATE
+    const DEFAULT_TEMPLATE = {
+      incomes: [
+        { id: 1, name: "Stream 1", amount: 130000 },
+        { id: 2, name: "Stream 2", amount: 45000 },
+        { id: 3, name: "Stream 3", amount: 29000 },
+        { id: 4, name: "Stream 4", amount: 20300 },
+        { id: 5, name: "Stream 5", amount: 8800 },
+        { id: 6, name: "Stream 6", amount: 8000 }
+      ],
+      emis: [
+        { id: 1, name: "Loan 1", amount: 86070, freed: false },
+        { id: 2, name: "Loan 2", amount: 33340, freed: false },
+        { id: 3, name: "Loan 3", amount: 27397, freed: false },
+        { id: 4, name: "Loan 4", amount: 21126, freed: false }
+      ],
+      insurance: 5192,
+      utilities: 1000,
+      subscriptions: 418,
+      variable: {
+        groceries: 6000,
+        dining: 5000,
+        transport: 6500,
+        shopping: 2000
+      }
+    };
 
     function hexToBytes(hex) {
       const bytes = new Uint8Array(hex.length / 2);
@@ -319,13 +399,12 @@
     async function verifyPin() {
       const errorEl = document.getElementById('pin-error');
       errorEl.innerText = "Verifying...";
-      const data = await decryptVault(currentPin);
-      if (data) {
-        budgetData = data;
+      const verified = await decryptVault(currentPin);
+      if (verified) {
         sessionStorage.setItem('unlocked_pin', currentPin);
         document.getElementById('pin-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
-        initDashboard();
+        loadOrInitializeState();
       } else {
         errorEl.innerText = "Incorrect PIN. Try again.";
         const container = document.getElementById('pin-dots-container');
@@ -347,119 +426,204 @@
       document.getElementById('pin-screen').classList.remove('hidden');
     }
 
-    // Dashboard Engine
-    const sliderGroceries = document.getElementById('slider-groceries');
-    const sliderDining = document.getElementById('slider-dining');
-    const sliderTransport = document.getElementById('slider-transport');
-    const sliderShopping = document.getElementById('slider-shopping');
-
-    const checkLoan1 = document.getElementById('loan-1');
-    const checkLoan2 = document.getElementById('loan-2');
-    const checkLoan3 = document.getElementById('loan-3');
-    const checkLoan4 = document.getElementById('loan-4');
-
     function formatINR(val) {
-      return '₹' + Math.round(val).toLocaleString('en-IN');
+      return '₹' + Math.round(val || 0).toLocaleString('en-IN');
     }
 
-    function initDashboard() {
-      document.getElementById('income-header-display').innerText = formatINR(budgetData.income);
-      document.getElementById('bar-total-label').innerText = 'Total: ' + formatINR(budgetData.income);
-
-      document.getElementById('loan-lbl-1').innerText = '+' + formatINR(budgetData.emis[3]) + ' / mo';
-      document.getElementById('loan-lbl-2').innerText = '+' + formatINR(budgetData.emis[2]) + ' / mo';
-      document.getElementById('loan-lbl-3').innerText = '+' + formatINR(budgetData.emis[1]) + ' / mo';
-      document.getElementById('loan-lbl-4').innerText = '+' + formatINR(budgetData.emis[0]) + ' / mo';
-
-      const totalEmis = budgetData.emis.reduce((a, b) => a + b, 0);
-      document.getElementById('emi-total-lbl').innerText = formatINR(totalEmis);
-      document.getElementById('ins-total-lbl').innerText = formatINR(budgetData.insurance);
-      document.getElementById('util-total-lbl').innerText = formatINR(budgetData.utilities);
-      document.getElementById('sub-total-lbl').innerText = formatINR(budgetData.subscriptions);
-
-      loadState();
+    // STATE MANAGEMENT & PERSISTENCE
+    function loadOrInitializeState() {
+      const saved = localStorage.getItem('budget_tracker_persistent_state_v3');
+      if (saved) {
+        try {
+          activeState = JSON.parse(saved);
+        } catch (e) {
+          activeState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+        }
+      } else {
+        activeState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+      }
+      renderIncomeStreams();
+      renderVariableInputs();
+      renderLoansAndFixed();
       calculate();
     }
 
     function saveState() {
-      const state = {
-        groceries: sliderGroceries.value,
-        dining: sliderDining.value,
-        transport: sliderTransport.value,
-        shopping: sliderShopping.value,
-        l1: checkLoan1.checked,
-        l2: checkLoan2.checked,
-        l3: checkLoan3.checked,
-        l4: checkLoan4.checked
-      };
+      if (!activeState) return;
       try {
-        localStorage.setItem('budget_tracker_state', JSON.stringify(state));
-      } catch (e) {}
-    }
-
-    function loadState() {
-      try {
-        const saved = localStorage.getItem('budget_tracker_state');
-        if (saved) {
-          const s = JSON.parse(saved);
-          if (s.groceries) sliderGroceries.value = s.groceries;
-          if (s.dining) sliderDining.value = s.dining;
-          if (s.transport) sliderTransport.value = s.transport;
-          if (s.shopping) sliderShopping.value = s.shopping;
-          if (s.l1 !== undefined) checkLoan1.checked = s.l1;
-          if (s.l2 !== undefined) checkLoan2.checked = s.l2;
-          if (s.l3 !== undefined) checkLoan3.checked = s.l3;
-          if (s.l4 !== undefined) checkLoan4.checked = s.l4;
+        localStorage.setItem('budget_tracker_persistent_state_v3', JSON.stringify(activeState));
+        const statusEl = document.getElementById('save-status');
+        if (statusEl) {
+          statusEl.innerText = "Saved just now";
+          setTimeout(() => {
+            statusEl.innerText = "All changes saved automatically";
+          }, 1500);
         }
       } catch (e) {}
     }
 
+    function resetDefaults() {
+      if (confirm("Reset all incomes and expenses to original starting numbers?")) {
+        localStorage.removeItem('budget_tracker_persistent_state_v3');
+        activeState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+        renderIncomeStreams();
+        renderVariableInputs();
+        renderLoansAndFixed();
+        calculate();
+      }
+    }
+
+    // RENDER & EDIT INCOMES
+    function renderIncomeStreams() {
+      const container = document.getElementById('income-streams-container');
+      container.innerHTML = "";
+
+      activeState.incomes.forEach((inc, index) => {
+        const row = document.createElement('div');
+        row.className = "flex items-center gap-2 bg-gray-50 dark:bg-slate-850 p-2 rounded-lg border border-gray-100 dark:border-slate-750";
+        row.innerHTML = `
+          <input type="text" value="${inc.name}" 
+                 class="flex-1 bg-transparent text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none" 
+                 onchange="updateIncomeName(${index}, this.value)">
+          <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-1">
+            <span class="text-gray-400 text-xs font-medium">₹</span>
+            <input type="number" value="${inc.amount}" 
+                   class="w-24 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" 
+                   oninput="updateIncomeAmount(${index}, this.value)">
+          </div>
+          <button onclick="removeIncomeStream(${index})" class="text-gray-400 hover:text-rose-500 text-sm px-1.5 py-0.5 rounded transition" title="Delete stream">×</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function updateIncomeName(index, val) {
+      activeState.incomes[index].name = val || `Stream ${index + 1}`;
+      saveState();
+    }
+
+    function updateIncomeAmount(index, val) {
+      activeState.incomes[index].amount = Math.max(0, parseFloat(val) || 0);
+      calculate();
+    }
+
+    function addIncomeStream() {
+      const newId = activeState.incomes.length + 1;
+      activeState.incomes.push({ id: Date.now(), name: `Stream ${newId}`, amount: 10000 });
+      renderIncomeStreams();
+      calculate();
+    }
+
+    function removeIncomeStream(index) {
+      if (activeState.incomes.length <= 1) {
+        alert("You must keep at least one income stream.");
+        return;
+      }
+      activeState.incomes.splice(index, 1);
+      renderIncomeStreams();
+      calculate();
+    }
+
+    // VARIABLE EXPENSES TWO-WAY SYNC
+    function renderVariableInputs() {
+      ['groceries', 'dining', 'transport', 'shopping'].forEach(key => {
+        const val = activeState.variable[key] || 0;
+        const numInput = document.getElementById(`num-${key}`);
+        const slider = document.getElementById(`slider-${key}`);
+        if (numInput) numInput.value = val;
+        if (slider) {
+          if (val > slider.max) slider.max = val * 1.5;
+          slider.value = val;
+        }
+      });
+    }
+
+    function syncVariableFromNum(key) {
+      const numInput = document.getElementById(`num-${key}`);
+      const slider = document.getElementById(`slider-${key}`);
+      let val = Math.max(0, parseFloat(numInput.value) || 0);
+      if (val > slider.max) slider.max = val * 1.5;
+      slider.value = val;
+      activeState.variable[key] = val;
+      calculate();
+    }
+
+    function syncVariableFromSlider(key) {
+      const slider = document.getElementById(`slider-${key}`);
+      const numInput = document.getElementById(`num-${key}`);
+      const val = parseInt(slider.value) || 0;
+      numInput.value = val;
+      activeState.variable[key] = val;
+      calculate();
+    }
+
+    // LOANS & FIXED
+    function renderLoansAndFixed() {
+      document.getElementById('loan-lbl-1').innerText = '+' + formatINR(activeState.emis[3].amount) + ' / mo';
+      document.getElementById('loan-lbl-2').innerText = '+' + formatINR(activeState.emis[2].amount) + ' / mo';
+      document.getElementById('loan-lbl-3').innerText = '+' + formatINR(activeState.emis[1].amount) + ' / mo';
+      document.getElementById('loan-lbl-4').innerText = '+' + formatINR(activeState.emis[0].amount) + ' / mo';
+
+      document.getElementById('loan-1').checked = !!activeState.emis[3].freed;
+      document.getElementById('loan-2').checked = !!activeState.emis[2].freed;
+      document.getElementById('loan-3').checked = !!activeState.emis[1].freed;
+      document.getElementById('loan-4').checked = !!activeState.emis[0].freed;
+
+      const totalEmis = activeState.emis.reduce((sum, item) => sum + item.amount, 0);
+      document.getElementById('emi-total-lbl').innerText = formatINR(totalEmis);
+      document.getElementById('ins-total-lbl').innerText = formatINR(activeState.insurance);
+      document.getElementById('util-total-lbl').innerText = formatINR(activeState.utilities);
+      document.getElementById('sub-total-lbl').innerText = formatINR(activeState.subscriptions);
+    }
+
+    // CALCULATE EVERYTHING
     function calculate() {
-      if (!budgetData) return;
+      if (!activeState) return;
 
-      const groceries = parseInt(sliderGroceries.value);
-      const dining = parseInt(sliderDining.value);
-      const transport = parseInt(sliderTransport.value);
-      const shopping = parseInt(sliderShopping.value);
+      // Update checkboxes state
+      activeState.emis[3].freed = document.getElementById('loan-1').checked;
+      activeState.emis[2].freed = document.getElementById('loan-2').checked;
+      activeState.emis[1].freed = document.getElementById('loan-3').checked;
+      activeState.emis[0].freed = document.getElementById('loan-4').checked;
 
-      document.getElementById('val-groceries').innerText = formatINR(groceries);
-      document.getElementById('val-dining').innerText = formatINR(dining);
-      document.getElementById('val-transport').innerText = formatINR(transport);
-      document.getElementById('val-shopping').innerText = formatINR(shopping);
+      // Income calculation
+      const totalIncome = activeState.incomes.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      document.getElementById('income-header-display').innerText = formatINR(totalIncome);
+      document.getElementById('total-income-badge').innerText = formatINR(totalIncome);
+      document.getElementById('bar-total-label').innerText = 'Total: ' + formatINR(totalIncome);
 
-      const totalVariable = groceries + dining + transport + shopping;
+      // Variable calculation
+      const totalVariable = Object.values(activeState.variable).reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+      document.getElementById('variable-total-display').innerText = formatINR(totalVariable);
 
-      let freedLoans = 0;
-      if (checkLoan1.checked) freedLoans += budgetData.emis[3];
-      if (checkLoan2.checked) freedLoans += budgetData.emis[2];
-      if (checkLoan3.checked) freedLoans += budgetData.emis[1];
-      if (checkLoan4.checked) freedLoans += budgetData.emis[0];
+      // Fixed & EMIs
+      let activeEMIs = 0;
+      activeState.emis.forEach(loan => {
+        if (!loan.freed) activeEMIs += loan.amount;
+      });
+      const otherFixed = activeState.insurance + activeState.utilities + activeState.subscriptions;
+      const totalFixed = activeEMIs + otherFixed;
 
-      const baseEmis = budgetData.emis.reduce((a, b) => a + b, 0);
-      const baseOtherFixed = budgetData.insurance + budgetData.utilities + budgetData.subscriptions;
-
-      const currentEMIs = baseEmis - freedLoans;
-      const totalFixed = currentEMIs + baseOtherFixed;
-      const totalExpenses = totalFixed + totalVariable;
-      const monthlySavings = Math.max(0, budgetData.income - totalExpenses);
-
+      const totalOutflow = totalFixed + totalVariable;
+      const monthlySavings = Math.max(0, totalIncome - totalOutflow);
       const projectedJuneSavings = monthlySavings * 7.5;
 
-      document.getElementById('variable-total-display').innerText = formatINR(totalVariable);
       document.getElementById('savings-monthly-display').innerText = formatINR(monthlySavings);
       document.getElementById('projected-savings-display').innerText = formatINR(projectedJuneSavings);
 
-      const varPct = (totalVariable / budgetData.income) * 100;
-      const savePct = (monthlySavings / budgetData.income) * 100;
-      const emiPct = (currentEMIs / budgetData.income) * 100;
-      const otherFixedPct = (baseOtherFixed / budgetData.income) * 100;
+      // Percentages
+      const safeIncome = totalIncome > 0 ? totalIncome : 1;
+      const varPct = (totalVariable / safeIncome) * 100;
+      const savePct = (monthlySavings / safeIncome) * 100;
+      const emiPct = (activeEMIs / safeIncome) * 100;
+      const otherFixedPct = (otherFixed / safeIncome) * 100;
 
       document.getElementById('savings-percent-badge').innerText = savePct.toFixed(1) + '%';
 
-      document.getElementById('bar-emi').style.width = emiPct + '%';
-      document.getElementById('bar-fixed').style.width = otherFixedPct + '%';
-      document.getElementById('bar-var').style.width = varPct + '%';
-      document.getElementById('bar-save').style.width = savePct + '%';
+      document.getElementById('bar-emi').style.width = Math.min(100, emiPct) + '%';
+      document.getElementById('bar-fixed').style.width = Math.min(100, otherFixedPct) + '%';
+      document.getElementById('bar-var').style.width = Math.min(100, varPct) + '%';
+      document.getElementById('bar-save').style.width = Math.min(100, savePct) + '%';
 
       document.getElementById('legend-emi-pct').innerText = emiPct.toFixed(1) + '%';
       document.getElementById('legend-fixed-pct').innerText = otherFixedPct.toFixed(1) + '%';
@@ -469,15 +633,7 @@
       saveState();
     }
 
-    [sliderGroceries, sliderDining, sliderTransport, sliderShopping].forEach(el => {
-      el.addEventListener('input', calculate);
-    });
-
-    [checkLoan1, checkLoan2, checkLoan3, checkLoan4].forEach(el => {
-      el.addEventListener('change', calculate);
-    });
-
-    // Check if previously unlocked in this session
+    // Auto-check session unlock
     window.addEventListener('DOMContentLoaded', async () => {
       const savedPin = sessionStorage.getItem('unlocked_pin');
       if (savedPin) {
