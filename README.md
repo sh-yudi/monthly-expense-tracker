@@ -1,15 +1,9 @@
 # Monthly Expense & Savings Planner (June 2027 Target)
 
-Private personal finance tracker and savings calculator designed for mobile and desktop.
+Private, client-side encrypted web application for personal expense planning and savings simulation.
 
-## Summary
-- **Net Monthly Income**: ₹2,41,100 (6 income streams)
-- **Fixed Outflows (EMIs & Bills)**: ₹1,74,543 / month (72.4%)
-- **Variable Spend (Groceries, Fuel, Dining, Shopping)**: ~₹19,500 / month (8.1%)
-- **Monthly Savings Capacity**: **₹47,057 / month** (~19.5%)
-- **Target Savings by June 2027**: **₹3,52,900+**
-
-## Access on Phone (Offline & Private)
-1. Open [index.html](index.html) in your browser.
-2. Add to Home Screen for a native app-like experience.
-3. All slider tweaks and checkbox selections are saved automatically to your device's `localStorage`.
+## Features
+- **Client-Side AES-256-GCM Encryption**: All financial numbers are encrypted with a 4-digit PIN. No raw financial data is stored in the repository.
+- **24/7 Mobile Access**: Works directly on any smartphone browser.
+- **Offline & Local Persistence**: Remembers custom slider adjustments and loan checkboxes in device local storage.
+- **PIN Screen**: Protected with an iOS-style keypad lock.

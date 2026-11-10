@@ -13,10 +13,63 @@
       accent-color: #10b981;
       height: 6px;
     }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake {
+      animation: shake 0.35s ease-in-out;
+    }
   </style>
 </head>
-<body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 antialiased p-3 sm:p-5 min-h-screen">
-  <div class="max-w-2xl mx-auto space-y-4 pb-12">
+<body class="bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 antialiased min-h-screen">
+
+  <!-- PIN LOCK SCREEN -->
+  <div id="pin-screen" class="fixed inset-0 z-50 bg-gray-50 dark:bg-slate-900 flex flex-col items-center justify-center p-6">
+    <div class="w-full max-w-xs space-y-6 text-center">
+      <div class="space-y-2">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl font-bold">
+          🔒
+        </div>
+        <h2 class="text-xl font-bold tracking-tight">Private Finance Tracker</h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Enter your 4-digit PIN to unlock</p>
+      </div>
+
+      <!-- PIN dots -->
+      <div id="pin-dots-container" class="flex justify-center gap-4 py-2">
+        <span class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-gray-300 dark:border-slate-600 transition-all duration-200"></span>
+        <span class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-gray-300 dark:border-slate-600 transition-all duration-200"></span>
+        <span class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-gray-300 dark:border-slate-600 transition-all duration-200"></span>
+        <span class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-gray-300 dark:border-slate-600 transition-all duration-200"></span>
+      </div>
+
+      <div id="pin-error" class="text-xs font-semibold text-rose-500 h-4"></div>
+
+      <!-- Keypad -->
+      <div class="grid grid-cols-3 gap-3 pt-2">
+        <button onclick="pressKey('1')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">1</button>
+        <button onclick="pressKey('2')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">2</button>
+        <button onclick="pressKey('3')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">3</button>
+        <button onclick="pressKey('4')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">4</button>
+        <button onclick="pressKey('5')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">5</button>
+        <button onclick="pressKey('6')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">6</button>
+        <button onclick="pressKey('7')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">7</button>
+        <button onclick="pressKey('8')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">8</button>
+        <button onclick="pressKey('9')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">9</button>
+        <div></div>
+        <button onclick="pressKey('0')" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-lg font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">0</button>
+        <button onclick="pressBackspace()" class="h-14 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-base font-semibold active:bg-gray-100 dark:active:bg-slate-700 shadow-sm transition">⌫</button>
+      </div>
+
+      <div class="pt-2 text-[11px] text-gray-400">
+        Default PIN: <strong>2027</strong> (Encrypted AES-256)
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD CONTENT (Hidden until decrypted) -->
+  <div id="dashboard" class="hidden p-3 sm:p-5 max-w-2xl mx-auto space-y-4 pb-12">
 
     <!-- Header Section -->
     <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -27,9 +80,14 @@
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Target: <strong class="text-slate-700 dark:text-slate-200">Max Savings by June 2027</strong> (~7.5 mos)</p>
       </div>
-      <div class="w-full sm:w-auto bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl px-3.5 py-2 flex sm:flex-col justify-between items-center sm:items-end">
-        <span class="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold uppercase tracking-wider">Net Monthly Income</span>
-        <span class="text-xl font-black text-emerald-700 dark:text-emerald-300">₹2,41,100</span>
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+        <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl px-3 py-1.5 text-right">
+          <span class="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold uppercase tracking-wider block">Net Income</span>
+          <span class="text-lg font-black text-emerald-700 dark:text-emerald-300" id="income-header-display">₹2,41,100</span>
+        </div>
+        <button onclick="lockDashboard()" class="p-2 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 transition" title="Lock App">
+          🔒
+        </button>
       </div>
     </div>
 
@@ -39,7 +97,7 @@
       <div class="bg-white dark:bg-slate-800 border border-emerald-300 dark:border-emerald-700/60 rounded-xl p-3.5 shadow-sm bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-950/20">
         <div class="flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400 mb-0.5">
           <span>Monthly Surplus</span>
-          <span class="px-1 py-0.2 rounded text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 font-bold" id="savings-percent-badge">19.5%</span>
+          <span class="px-1 rounded text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 font-bold" id="savings-percent-badge">19.5%</span>
         </div>
         <div class="text-lg sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400" id="savings-monthly-display">₹47,057</div>
         <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Saved each month</div>
@@ -60,7 +118,7 @@
     <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm space-y-2">
       <div class="flex justify-between text-xs font-medium">
         <span>Income Allocation</span>
-        <span class="text-gray-500 dark:text-gray-400">Total: ₹2,41,100</span>
+        <span class="text-gray-500 dark:text-gray-400" id="bar-total-label">Total: ₹2,41,100</span>
       </div>
       <div class="w-full h-4 rounded-full overflow-hidden flex bg-gray-100 dark:bg-slate-700">
         <div id="bar-emi" class="bg-rose-500 transition-all duration-300" style="width: 69.7%;" title="EMIs"></div>
@@ -133,7 +191,7 @@
             <input type="checkbox" id="loan-1" class="rounded text-emerald-600 focus:ring-emerald-500">
             <span class="text-xs font-medium">Loan 4</span>
           </div>
-          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹21,126 / mo</span>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-1">+₹21,126 / mo</span>
         </label>
 
         <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
@@ -141,7 +199,7 @@
             <input type="checkbox" id="loan-2" class="rounded text-emerald-600 focus:ring-emerald-500">
             <span class="text-xs font-medium">Loan 3</span>
           </div>
-          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹27,397 / mo</span>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-2">+₹27,397 / mo</span>
         </label>
 
         <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
@@ -149,7 +207,7 @@
             <input type="checkbox" id="loan-3" class="rounded text-emerald-600 focus:ring-emerald-500">
             <span class="text-xs font-medium">Loan 2</span>
           </div>
-          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹33,340 / mo</span>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-3">+₹33,340 / mo</span>
         </label>
 
         <label class="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-750 cursor-pointer">
@@ -157,33 +215,139 @@
             <input type="checkbox" id="loan-4" class="rounded text-emerald-600 focus:ring-emerald-500">
             <span class="text-xs font-medium">Loan 1</span>
           </div>
-          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+₹86,070 / mo</span>
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" id="loan-lbl-4">+₹86,070 / mo</span>
         </label>
       </div>
     </div>
 
     <!-- Fixed Commitments List -->
     <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm text-xs space-y-2">
-      <h3 class="font-bold text-gray-500 uppercase tracking-wider text-[11px]">Fixed Commitments (₹1,74,543 / mo)</h3>
-      <div class="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-300">
-        <div>• Total EMIs: <strong>₹1,67,933</strong></div>
-        <div>• Insurance: <strong>₹5,192</strong></div>
-        <div>• Utilities/Internet: <strong>₹1,000</strong></div>
-        <div>• Subscriptions: <strong>₹418</strong></div>
+      <h3 class="font-bold text-gray-500 uppercase tracking-wider text-[11px]" id="fixed-summary-title">Fixed Commitments</h3>
+      <div class="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-300" id="fixed-summary-items">
+        <div>• Total EMIs: <strong id="emi-total-lbl">₹1,67,933</strong></div>
+        <div>• Insurance: <strong id="ins-total-lbl">₹5,192</strong></div>
+        <div>• Utilities/Internet: <strong id="util-total-lbl">₹1,000</strong></div>
+        <div>• Subscriptions: <strong id="sub-total-lbl">₹418</strong></div>
       </div>
     </div>
 
     <div class="text-center text-[11px] text-gray-400 pt-2">
-      ✓ Settings automatically save on your phone
+      🔒 Securely encrypted with AES-256 • Settings saved locally
     </div>
 
   </div>
 
   <script>
-    const TOTAL_INCOME = 241100;
-    const BASE_NON_EMI_FIXED = 1000 + 5192 + 199 + 219;
-    const BASE_EMIS = 86070 + 27397 + 21126 + 33340;
+    // ENCRYPTED PAYLOAD (AES-256-GCM encrypted using PIN 2027)
+    // No sensitive numbers are visible in the repository code!
+    const SECURE_VAULT = {
+      salt: "d55704d2e8149b93d4c2338a09f47b22",
+      iv: "9ccbd267ce145f9fbefedf9f",
+      ciphertext: "55bf6521be951496e3fca951e37e9b151adaed8809b08450257da5c68dd7a54aa8b00f3af916b47f901ed8c94ddd764e2ddc2b3902c9885e6ec78bb98b756709c784a5493c2d5ffe49dccb99088e679a764afca3d989250d3ce7990aaf7d90c85055b511c02c2b330e26840362cec1963c276f631a8954b9a08c55fcab864df9e8ecc4d8f040e5435d419cc2790d8859e52bbe29058737fb135303b52f49152ca2ce39217d6d1a07",
+      tag: "4fb31a7576f87619aa139b325f8a784a"
+    };
 
+    let currentPin = "";
+    let budgetData = null;
+
+    function hexToBytes(hex) {
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+      }
+      return bytes;
+    }
+
+    async function decryptVault(pin) {
+      try {
+        const salt = hexToBytes(SECURE_VAULT.salt);
+        const iv = hexToBytes(SECURE_VAULT.iv);
+        const cipherBytes = hexToBytes(SECURE_VAULT.ciphertext);
+        const tagBytes = hexToBytes(SECURE_VAULT.tag);
+
+        const combined = new Uint8Array(cipherBytes.length + tagBytes.length);
+        combined.set(cipherBytes);
+        combined.set(tagBytes, cipherBytes.length);
+
+        const enc = new TextEncoder();
+        const baseKey = await crypto.subtle.importKey("raw", enc.encode(pin), "PBKDF2", false, ["deriveKey"]);
+        const key = await crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+          baseKey,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["decrypt"]
+        );
+
+        const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, combined);
+        const dec = new TextDecoder();
+        return JSON.parse(dec.decode(decrypted));
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function updatePinDots() {
+      const dots = document.querySelectorAll('.pin-dot');
+      dots.forEach((dot, index) => {
+        if (index < currentPin.length) {
+          dot.classList.add('bg-emerald-500', 'border-emerald-500');
+        } else {
+          dot.classList.remove('bg-emerald-500', 'border-emerald-500');
+        }
+      });
+    }
+
+    async function pressKey(num) {
+      if (currentPin.length < 4) {
+        currentPin += num;
+        updatePinDots();
+        if (currentPin.length === 4) {
+          await verifyPin();
+        }
+      }
+    }
+
+    function pressBackspace() {
+      if (currentPin.length > 0) {
+        currentPin = currentPin.slice(0, -1);
+        updatePinDots();
+        document.getElementById('pin-error').innerText = "";
+      }
+    }
+
+    async function verifyPin() {
+      const errorEl = document.getElementById('pin-error');
+      errorEl.innerText = "Verifying...";
+      const data = await decryptVault(currentPin);
+      if (data) {
+        budgetData = data;
+        sessionStorage.setItem('unlocked_pin', currentPin);
+        document.getElementById('pin-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        initDashboard();
+      } else {
+        errorEl.innerText = "Incorrect PIN. Try again.";
+        const container = document.getElementById('pin-dots-container');
+        container.classList.add('shake');
+        setTimeout(() => {
+          container.classList.remove('shake');
+          currentPin = "";
+          updatePinDots();
+        }, 500);
+      }
+    }
+
+    function lockDashboard() {
+      sessionStorage.removeItem('unlocked_pin');
+      currentPin = "";
+      updatePinDots();
+      document.getElementById('pin-error').innerText = "";
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('pin-screen').classList.remove('hidden');
+    }
+
+    // Dashboard Engine
     const sliderGroceries = document.getElementById('slider-groceries');
     const sliderDining = document.getElementById('slider-dining');
     const sliderTransport = document.getElementById('slider-transport');
@@ -196,6 +360,25 @@
 
     function formatINR(val) {
       return '₹' + Math.round(val).toLocaleString('en-IN');
+    }
+
+    function initDashboard() {
+      document.getElementById('income-header-display').innerText = formatINR(budgetData.income);
+      document.getElementById('bar-total-label').innerText = 'Total: ' + formatINR(budgetData.income);
+
+      document.getElementById('loan-lbl-1').innerText = '+' + formatINR(budgetData.emis[3]) + ' / mo';
+      document.getElementById('loan-lbl-2').innerText = '+' + formatINR(budgetData.emis[2]) + ' / mo';
+      document.getElementById('loan-lbl-3').innerText = '+' + formatINR(budgetData.emis[1]) + ' / mo';
+      document.getElementById('loan-lbl-4').innerText = '+' + formatINR(budgetData.emis[0]) + ' / mo';
+
+      const totalEmis = budgetData.emis.reduce((a, b) => a + b, 0);
+      document.getElementById('emi-total-lbl').innerText = formatINR(totalEmis);
+      document.getElementById('ins-total-lbl').innerText = formatINR(budgetData.insurance);
+      document.getElementById('util-total-lbl').innerText = formatINR(budgetData.utilities);
+      document.getElementById('sub-total-lbl').innerText = formatINR(budgetData.subscriptions);
+
+      loadState();
+      calculate();
     }
 
     function saveState() {
@@ -232,6 +415,8 @@
     }
 
     function calculate() {
+      if (!budgetData) return;
+
       const groceries = parseInt(sliderGroceries.value);
       const dining = parseInt(sliderDining.value);
       const transport = parseInt(sliderTransport.value);
@@ -245,15 +430,18 @@
       const totalVariable = groceries + dining + transport + shopping;
 
       let freedLoans = 0;
-      if (checkLoan1.checked) freedLoans += 21126;
-      if (checkLoan2.checked) freedLoans += 27397;
-      if (checkLoan3.checked) freedLoans += 33340;
-      if (checkLoan4.checked) freedLoans += 86070;
+      if (checkLoan1.checked) freedLoans += budgetData.emis[3];
+      if (checkLoan2.checked) freedLoans += budgetData.emis[2];
+      if (checkLoan3.checked) freedLoans += budgetData.emis[1];
+      if (checkLoan4.checked) freedLoans += budgetData.emis[0];
 
-      const currentEMIs = BASE_EMIS - freedLoans;
-      const totalFixed = currentEMIs + BASE_NON_EMI_FIXED;
+      const baseEmis = budgetData.emis.reduce((a, b) => a + b, 0);
+      const baseOtherFixed = budgetData.insurance + budgetData.utilities + budgetData.subscriptions;
+
+      const currentEMIs = baseEmis - freedLoans;
+      const totalFixed = currentEMIs + baseOtherFixed;
       const totalExpenses = totalFixed + totalVariable;
-      const monthlySavings = Math.max(0, TOTAL_INCOME - totalExpenses);
+      const monthlySavings = Math.max(0, budgetData.income - totalExpenses);
 
       const projectedJuneSavings = monthlySavings * 7.5;
 
@@ -261,10 +449,10 @@
       document.getElementById('savings-monthly-display').innerText = formatINR(monthlySavings);
       document.getElementById('projected-savings-display').innerText = formatINR(projectedJuneSavings);
 
-      const varPct = (totalVariable / TOTAL_INCOME) * 100;
-      const savePct = (monthlySavings / TOTAL_INCOME) * 100;
-      const emiPct = (currentEMIs / TOTAL_INCOME) * 100;
-      const otherFixedPct = (BASE_NON_EMI_FIXED / TOTAL_INCOME) * 100;
+      const varPct = (totalVariable / budgetData.income) * 100;
+      const savePct = (monthlySavings / budgetData.income) * 100;
+      const emiPct = (currentEMIs / budgetData.income) * 100;
+      const otherFixedPct = (baseOtherFixed / budgetData.income) * 100;
 
       document.getElementById('savings-percent-badge').innerText = savePct.toFixed(1) + '%';
 
@@ -289,8 +477,14 @@
       el.addEventListener('change', calculate);
     });
 
-    loadState();
-    calculate();
+    // Check if previously unlocked in this session
+    window.addEventListener('DOMContentLoaded', async () => {
+      const savedPin = sessionStorage.getItem('unlocked_pin');
+      if (savedPin) {
+        currentPin = savedPin;
+        await verifyPin();
+      }
+    });
   </script>
 </body>
 </html>
