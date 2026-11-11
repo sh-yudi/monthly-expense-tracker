@@ -77,7 +77,15 @@
   </div>
 
   <!-- DASHBOARD CONTENT -->
-  <div id="dashboard" class="hidden p-3 sm:p-5 max-w-2xl mx-auto space-y-4 pb-12">
+  <div id="dashboard" class="hidden p-3 sm:p-5 max-w-2xl mx-auto space-y-4 pb-16">
+
+    <!-- Browser Environment Alert (Shown only inside in-app webviews like WhatsApp/Telegram) -->
+    <div id="inapp-warning" class="hidden bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-xl p-3 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
+      <span class="text-base">⚠️</span>
+      <div>
+        <strong>You are viewing inside an in-app browser.</strong> To ensure your phone permanently remembers your changes, tap the <strong>Share</strong> or <strong>...</strong> menu and select <strong>"Open in Safari"</strong> or <strong>"Open in Chrome"</strong>.
+      </div>
+    </div>
 
     <!-- Header Section -->
     <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -152,15 +160,20 @@
         <span class="text-xs font-black text-emerald-600 dark:text-emerald-400" id="total-income-badge">₹2,41,100</span>
       </div>
       
-      <p class="text-[11px] text-gray-400">Edit amounts, add new earnings, or rename streams. Total updates in real-time:</p>
+      <p class="text-[11px] text-gray-400">Edit amounts or add streams. All changes are saved automatically to your phone's memory:</p>
       
       <div id="income-streams-container" class="space-y-2">
         <!-- Rendered dynamically -->
       </div>
 
-      <button onclick="addIncomeStream()" class="w-full py-2 rounded-lg border border-dashed border-gray-300 dark:border-slate-600 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700/50 transition flex items-center justify-center gap-1">
-        <span>+</span> Add Another Income Stream
-      </button>
+      <div class="flex gap-2 pt-1">
+        <button onclick="addIncomeStream()" class="flex-1 py-2 rounded-lg border border-dashed border-gray-300 dark:border-slate-600 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700/50 transition flex items-center justify-center gap-1">
+          <span>+</span> Add Income Stream
+        </button>
+        <button onclick="manualSaveNow()" class="px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 active:scale-95 transition flex items-center gap-1 shadow-sm">
+          <span>💾</span> Save Now
+        </button>
+      </div>
     </div>
 
     <!-- 2. EDITABLE VARIABLE EXPENSES SECTION -->
@@ -179,7 +192,7 @@
           <span class="font-medium text-gray-700 dark:text-gray-200">Groceries & Essentials</span>
           <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
             <span class="text-gray-400 text-xs font-medium">₹</span>
-            <input type="number" id="num-groceries" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="6000" oninput="syncVariableFromNum('groceries')">
+            <input type="number" id="num-groceries" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="6000" oninput="syncVariableFromNum('groceries')" onchange="syncVariableFromNum('groceries')">
           </div>
         </div>
         <input type="range" id="slider-groceries" min="1000" max="15000" step="500" value="6000" class="w-full" oninput="syncVariableFromSlider('groceries')">
@@ -191,7 +204,7 @@
           <span class="font-medium text-gray-700 dark:text-gray-200">Dining Out, Cafe & Social</span>
           <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
             <span class="text-gray-400 text-xs font-medium">₹</span>
-            <input type="number" id="num-dining" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="5000" oninput="syncVariableFromNum('dining')">
+            <input type="number" id="num-dining" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="5000" oninput="syncVariableFromNum('dining')" onchange="syncVariableFromNum('dining')">
           </div>
         </div>
         <input type="range" id="slider-dining" min="500" max="15000" step="500" value="5000" class="w-full" oninput="syncVariableFromSlider('dining')">
@@ -203,7 +216,7 @@
           <span class="font-medium text-gray-700 dark:text-gray-200">Transport & Fuel</span>
           <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
             <span class="text-gray-400 text-xs font-medium">₹</span>
-            <input type="number" id="num-transport" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="6500" oninput="syncVariableFromNum('transport')">
+            <input type="number" id="num-transport" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="6500" oninput="syncVariableFromNum('transport')" onchange="syncVariableFromNum('transport')">
           </div>
         </div>
         <input type="range" id="slider-transport" min="1000" max="15000" step="500" value="6500" class="w-full" oninput="syncVariableFromSlider('transport')">
@@ -215,7 +228,7 @@
           <span class="font-medium text-gray-700 dark:text-gray-200">Shopping / Misc (Monthly Average)</span>
           <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-0.5">
             <span class="text-gray-400 text-xs font-medium">₹</span>
-            <input type="number" id="num-shopping" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="2000" oninput="syncVariableFromNum('shopping')">
+            <input type="number" id="num-shopping" class="w-20 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" value="2000" oninput="syncVariableFromNum('shopping')" onchange="syncVariableFromNum('shopping')">
           </div>
         </div>
         <input type="range" id="slider-shopping" min="0" max="10000" step="500" value="2000" class="w-full" oninput="syncVariableFromSlider('shopping')">
@@ -278,15 +291,30 @@
       </div>
     </div>
 
-    <!-- AUTO-SAVE STATUS & RESET -->
-    <div class="flex justify-between items-center text-[11px] text-gray-400 pt-2 px-1">
-      <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span id="save-status">All changes saved automatically</span>
+    <!-- PERSISTENCE CONTROLS & BACKUP -->
+    <div class="space-y-3 pt-2">
+      <div class="flex justify-between items-center text-[11px] text-gray-400 px-1">
+        <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="save-status">Saved to device memory</span>
+        </div>
+        <button onclick="resetDefaults()" class="text-gray-400 hover:text-rose-500 underline transition">
+          Reset to defaults
+        </button>
       </div>
-      <button onclick="resetDefaults()" class="text-gray-400 hover:text-rose-500 underline transition">
-        Reset to defaults
-      </button>
+
+      <!-- Backup / Bookmark link -->
+      <div class="p-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl space-y-2 text-xs">
+        <div class="font-bold text-gray-700 dark:text-gray-200 flex items-center justify-between">
+          <span>Permanent Bookmark Link</span>
+          <button onclick="copyBookmarkLink()" id="copy-btn" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-[11px] font-semibold rounded-lg transition">
+            📋 Copy Link
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-400">
+          This link encodes your exact personalized numbers directly into the web address. Bookmark it in Safari/Chrome so your numbers will never reset, even if your phone clears its browser cache.
+        </p>
+      </div>
     </div>
 
   </div>
@@ -302,6 +330,8 @@
 
     let currentPin = "";
     let activeState = null;
+
+    const STORAGE_KEY = 'budget_tracker_persistent_v4';
 
     // DEFAULT FRESH TEMPLATE
     const DEFAULT_TEMPLATE = {
@@ -329,6 +359,67 @@
         shopping: 2000
       }
     };
+
+    // Detect In-App Browsers (WhatsApp, Telegram, Instagram, etc.)
+    function checkInAppBrowser() {
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      const isInApp = (ua.indexOf("FBAN") > -1) || 
+                      (ua.indexOf("FBAV") > -1) || 
+                      (ua.indexOf("Instagram") > -1) || 
+                      (ua.indexOf("WhatsApp") > -1) || 
+                      (ua.indexOf("Telegram") > -1) ||
+                      (ua.indexOf("Line") > -1);
+      if (isInApp) {
+        document.getElementById('inapp-warning').classList.remove('hidden');
+      }
+    }
+
+    // INDEXEDDB MULTI-TIER STORAGE ENGINE
+    const DB_NAME = "BudgetTrackerDB";
+    const STORE_NAME = "budget_store";
+
+    function openDB() {
+      return new Promise((resolve) => {
+        try {
+          if (!window.indexedDB) return resolve(null);
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME);
+            }
+          };
+          req.onsuccess = (e) => resolve(e.target.result);
+          req.onerror = () => resolve(null);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
+
+    async function dbSave(state) {
+      try {
+        const db = await openDB();
+        if (!db) return;
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).put(state, "latest_state");
+      } catch (e) {}
+    }
+
+    async function dbLoad() {
+      try {
+        const db = await openDB();
+        if (!db) return null;
+        return new Promise((resolve) => {
+          const tx = db.transaction(STORE_NAME, "readonly");
+          const req = tx.objectStore(STORE_NAME).get("latest_state");
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
 
     function hexToBytes(hex) {
       const bytes = new Uint8Array(hex.length / 2);
@@ -401,10 +492,13 @@
       errorEl.innerText = "Verifying...";
       const verified = await decryptVault(currentPin);
       if (verified) {
-        sessionStorage.setItem('unlocked_pin', currentPin);
+        try {
+          sessionStorage.setItem('unlocked_pin', currentPin);
+          localStorage.setItem('saved_device_pin', currentPin);
+        } catch(e) {}
         document.getElementById('pin-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
-        loadOrInitializeState();
+        await loadOrInitializeState();
       } else {
         errorEl.innerText = "Incorrect PIN. Try again.";
         const container = document.getElementById('pin-dots-container');
@@ -418,7 +512,9 @@
     }
 
     function lockDashboard() {
-      sessionStorage.removeItem('unlocked_pin');
+      try {
+        sessionStorage.removeItem('unlocked_pin');
+      } catch(e) {}
       currentPin = "";
       updatePinDots();
       document.getElementById('pin-error').innerText = "";
@@ -430,18 +526,43 @@
       return '₹' + Math.round(val || 0).toLocaleString('en-IN');
     }
 
-    // STATE MANAGEMENT & PERSISTENCE
-    function loadOrInitializeState() {
-      const saved = localStorage.getItem('budget_tracker_persistent_state_v3');
-      if (saved) {
-        try {
-          activeState = JSON.parse(saved);
-        } catch (e) {
-          activeState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+    // STATE INITIALIZATION WITH MULTI-TIER FALLBACK
+    async function loadOrInitializeState() {
+      let candidate = null;
+
+      // 1. Try URL Hash (most durable across device sync)
+      try {
+        if (window.location.hash && window.location.hash.startsWith('#s=')) {
+          const rawHash = decodeURIComponent(window.location.hash.slice(3));
+          candidate = JSON.parse(decodeURIComponent(escape(atob(rawHash))));
         }
+      } catch(e) {}
+
+      // 2. Try localStorage
+      if (!candidate) {
+        try {
+          const savedStr = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('budget_tracker_persistent_state_v3');
+          if (savedStr) {
+            candidate = JSON.parse(savedStr);
+          }
+        } catch (e) {}
+      }
+
+      // 3. Try IndexedDB
+      if (!candidate) {
+        candidate = await dbLoad();
+      }
+
+      // 4. Validate or fallback to default
+      if (candidate && Array.isArray(candidate.incomes) && candidate.incomes.length > 0) {
+        activeState = candidate;
+        // Merge missing fields if any
+        if (!activeState.variable) activeState.variable = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE.variable));
+        if (!activeState.emis) activeState.emis = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE.emis));
       } else {
         activeState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
       }
+
       renderIncomeStreams();
       renderVariableInputs();
       renderLoansAndFixed();
@@ -450,26 +571,91 @@
 
     function saveState() {
       if (!activeState) return;
+
+      // Ensure activeState has exact current values from DOM
+      readDOMIntoState();
+
+      const jsonStr = JSON.stringify(activeState);
+
+      // Save to localStorage
       try {
-        localStorage.setItem('budget_tracker_persistent_state_v3', JSON.stringify(activeState));
-        const statusEl = document.getElementById('save-status');
-        if (statusEl) {
-          statusEl.innerText = "Saved just now";
-          setTimeout(() => {
-            statusEl.innerText = "All changes saved automatically";
-          }, 1500);
-        }
+        localStorage.setItem(STORAGE_KEY, jsonStr);
       } catch (e) {}
+
+      // Save to IndexedDB
+      dbSave(activeState);
+
+      // Update URL hash without reload
+      try {
+        const hashEncoded = btoa(unescape(encodeURIComponent(jsonStr)));
+        history.replaceState(null, null, '#s=' + encodeURIComponent(hashEncoded));
+      } catch(e) {}
+
+      const statusEl = document.getElementById('save-status');
+      if (statusEl) {
+        statusEl.innerText = "Saved just now";
+        statusEl.classList.add('text-emerald-500', 'font-bold');
+        setTimeout(() => {
+          statusEl.innerText = "Saved to device memory";
+          statusEl.classList.remove('font-bold');
+        }, 1500);
+      }
+    }
+
+    function readDOMIntoState() {
+      if (!activeState) return;
+
+      // Read variable inputs
+      ['groceries', 'dining', 'transport', 'shopping'].forEach(key => {
+        const numInput = document.getElementById(`num-${key}`);
+        if (numInput) {
+          activeState.variable[key] = Math.max(0, parseFloat(numInput.value) || 0);
+        }
+      });
+
+      // Read loan checkboxes
+      if (activeState.emis && activeState.emis.length >= 4) {
+        activeState.emis[3].freed = document.getElementById('loan-1').checked;
+        activeState.emis[2].freed = document.getElementById('loan-2').checked;
+        activeState.emis[1].freed = document.getElementById('loan-3').checked;
+        activeState.emis[0].freed = document.getElementById('loan-4').checked;
+      }
+    }
+
+    function manualSaveNow() {
+      saveState();
+      alert("✓ All income & expense changes have been permanently saved to your device!");
+    }
+
+    function copyBookmarkLink() {
+      saveState();
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.innerText = "✓ Copied!";
+        btn.classList.add('bg-emerald-500', 'text-white');
+        setTimeout(() => {
+          btn.innerText = "📋 Copy Link";
+          btn.classList.remove('bg-emerald-500', 'text-white');
+        }, 2000);
+      }).catch(() => {
+        prompt("Copy this permanent link to your bookmark:", window.location.href);
+      });
     }
 
     function resetDefaults() {
-      if (confirm("Reset all incomes and expenses to original starting numbers?")) {
-        localStorage.removeItem('budget_tracker_persistent_state_v3');
+      if (confirm("Reset all incomes and expenses back to initial starting numbers?")) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('budget_tracker_persistent_state_v3');
+        } catch(e) {}
+        history.replaceState(null, null, window.location.pathname);
         activeState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
         renderIncomeStreams();
         renderVariableInputs();
         renderLoansAndFixed();
         calculate();
+        saveState();
       }
     }
 
@@ -484,12 +670,16 @@
         row.innerHTML = `
           <input type="text" value="${inc.name}" 
                  class="flex-1 bg-transparent text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none" 
-                 onchange="updateIncomeName(${index}, this.value)">
+                 oninput="updateIncomeName(${index}, this.value)"
+                 onchange="updateIncomeName(${index}, this.value)"
+                 onblur="updateIncomeName(${index}, this.value)">
           <div class="flex items-center gap-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-1">
             <span class="text-gray-400 text-xs font-medium">₹</span>
             <input type="number" value="${inc.amount}" 
                    class="w-24 text-right text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent focus:outline-none" 
-                   oninput="updateIncomeAmount(${index}, this.value)">
+                   oninput="updateIncomeAmount(${index}, this.value)"
+                   onchange="updateIncomeAmount(${index}, this.value)"
+                   onblur="updateIncomeAmount(${index}, this.value)">
           </div>
           <button onclick="removeIncomeStream(${index})" class="text-gray-400 hover:text-rose-500 text-sm px-1.5 py-0.5 rounded transition" title="Delete stream">×</button>
         `;
@@ -498,11 +688,13 @@
     }
 
     function updateIncomeName(index, val) {
+      if (!activeState.incomes[index]) return;
       activeState.incomes[index].name = val || `Stream ${index + 1}`;
       saveState();
     }
 
     function updateIncomeAmount(index, val) {
+      if (!activeState.incomes[index]) return;
       activeState.incomes[index].amount = Math.max(0, parseFloat(val) || 0);
       calculate();
     }
@@ -580,11 +772,7 @@
     function calculate() {
       if (!activeState) return;
 
-      // Update checkboxes state
-      activeState.emis[3].freed = document.getElementById('loan-1').checked;
-      activeState.emis[2].freed = document.getElementById('loan-2').checked;
-      activeState.emis[1].freed = document.getElementById('loan-3').checked;
-      activeState.emis[0].freed = document.getElementById('loan-4').checked;
+      readDOMIntoState();
 
       // Income calculation
       const totalIncome = activeState.incomes.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
@@ -633,9 +821,19 @@
       saveState();
     }
 
+    // Page Lifecycle Events for Bulletproof Mobile Saving
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        saveState();
+      }
+    });
+    window.addEventListener('pagehide', () => saveState());
+    window.addEventListener('beforeunload', () => saveState());
+
     // Auto-check session unlock
     window.addEventListener('DOMContentLoaded', async () => {
-      const savedPin = sessionStorage.getItem('unlocked_pin');
+      checkInAppBrowser();
+      const savedPin = sessionStorage.getItem('unlocked_pin') || localStorage.getItem('saved_device_pin');
       if (savedPin) {
         currentPin = savedPin;
         await verifyPin();
